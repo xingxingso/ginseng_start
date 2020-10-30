@@ -1,0 +1,2 @@
+2020/10/29 20:16:56 Error 1062: Duplicate entry '2' for key 'PRIMARY'
+[GIN] 2020/10/29 - 20:16:56 | 404 |    7.538418ms |             ::1 | POST     "/user-api/user"
