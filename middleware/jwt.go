@@ -4,6 +4,7 @@ import (
 	"ginseng_start/model"
 	"ginseng_start/service"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -14,7 +15,7 @@ import (
 
 var identityKey = "id"
 
-func NewJwt(r *gin.Engine) *jwt.GinJWTMiddleware {
+func NewJwt() *jwt.GinJWTMiddleware {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "gin jwt",
 		Key:         []byte("secret key"),
@@ -35,23 +36,36 @@ func NewJwt(r *gin.Engine) *jwt.GinJWTMiddleware {
 				Name: claims[identityKey].(string),
 			}
 		},
-		// 授权
+		// 登录
 		Authenticator: func(c *gin.Context) (interface{}, error) {
-			var loginVals service.Login
-			if err := c.ShouldBind(&loginVals); err != nil {
+			var login service.Login
+			if err := c.ShouldBind(&login); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
-			userID := loginVals.Username
-			password := loginVals.Password
 
-			if (userID == "admin" && password == "admin") || (userID == "test" && password == "test") {
-				return &model.User{
-					Name: userID,
-				}, nil
+			if user := login.Login(); user != nil {
+				return user, nil
 			}
 
 			return nil, jwt.ErrFailedAuthentication
 		},
+		// 登录响应格式
+		LoginResponse: func(c *gin.Context, code int, token string, expire time.Time) {
+			c.JSON(http.StatusOK, gin.H{
+				"code":   http.StatusOK,
+				"token":  token,
+				"expire": expire.Unix(),
+			})
+		},
+		// 刷新响应
+		RefreshResponse: func(c *gin.Context, code int, token string, expire time.Time) {
+			c.JSON(http.StatusOK, gin.H{
+				"code":   http.StatusOK,
+				"token":  token,
+				"expire": expire.Unix(),
+			})
+		},
+
 		// 鉴权
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			if v, ok := data.(*model.User); ok && v.Name == "admin" {
