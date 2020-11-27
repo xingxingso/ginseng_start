@@ -1,7 +1,8 @@
-package controllers
+package controller
 
 import (
-	"ginseng_start/models"
+	"ginseng_start/model"
+	"ginseng_start/service"
 	"log"
 	"net/http"
 
@@ -10,8 +11,8 @@ import (
 
 //GetUsers ... Get all users
 func GetUsers(c *gin.Context) {
-	var user []models.User
-	err := models.GetAllUsers(&user)
+	var user []model.User
+	err := service.GetAllUsers(&user)
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 	} else {
@@ -21,9 +22,9 @@ func GetUsers(c *gin.Context) {
 
 //CreateUser ... Create User
 func CreateUser(c *gin.Context) {
-	var user models.User
+	var user model.User
 	c.BindJSON(&user)
-	err := models.CreateUser(&user)
+	err := service.CreateUser(&user)
 	if err != nil {
 		// fmt.Println(err.Error())
 		log.Println(err.Error())
@@ -38,8 +39,8 @@ func CreateUser(c *gin.Context) {
 //GetUserByID ... Get the user by id
 func GetUserByID(c *gin.Context) {
 	id := c.Params.ByName("id")
-	var user models.User
-	err := models.GetUserByID(&user, id)
+	var user model.User
+	err := service.GetUserByID(&user, id)
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 		// c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
@@ -50,15 +51,15 @@ func GetUserByID(c *gin.Context) {
 
 //UpdateUser ... Update the user information
 func UpdateUser(c *gin.Context) {
-	var user models.User
+	var user model.User
 	id := c.Params.ByName("id")
-	err := models.GetUserByID(&user, id)
+	err := service.GetUserByID(&user, id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, user)
 		return
 	}
 	c.BindJSON(&user)
-	err = models.UpdateUser(&user, id)
+	err = service.UpdateUser(&user, id)
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 	} else {
@@ -68,9 +69,9 @@ func UpdateUser(c *gin.Context) {
 
 //DeleteUser ... Delete the user
 func DeleteUser(c *gin.Context) {
-	var user models.User
+	var user model.User
 	id := c.Params.ByName("id")
-	err := models.DeleteUser(&user, id)
+	err := service.DeleteUser(&user, id)
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 	} else {

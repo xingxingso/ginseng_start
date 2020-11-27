@@ -2,18 +2,17 @@ package main
 
 import (
 	"fmt"
-	"ginseng_start/config"
-	"ginseng_start/middlewares"
-	"ginseng_start/models"
-	"ginseng_start/routers"
 	"io"
 	"os"
 
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
 
-	"github.com/gin-gonic/gin"
-
-	"github.com/jinzhu/gorm"
+	"ginseng_start/config"
+	"ginseng_start/middleware"
+	"ginseng_start/model"
+	"ginseng_start/router"
 )
 
 var err error
@@ -81,20 +80,17 @@ func main() {
 	}
 
 	defer config.DB.Close()
-	config.DB.AutoMigrate(&models.User{})
+	config.DB.AutoMigrate(&model.User{})
 
 	r := gin.New()
 	// r := routers.SetupRouter()
-	r.Use(middlewares.Cors())
+	r.Use(middleware.Cors())
 	// r.Use(gin.Logger())
 	// rLog := logrus.New()
-	r.Use(middlewares.Logger(), gin.Recovery())
+	r.Use(middleware.Logger(), gin.Recovery())
 	// r.Use(gin.Recovery())
 
-	middlewares.NewJwt(r)
-	r.Use(middlewares.Jwt())
-
-	routers.SetupRouter(r)
+	router.SetupRouter(r)
 	//running
 	r.Run()
 }

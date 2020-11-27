@@ -1,4 +1,8 @@
-package models
+package model
+
+import (
+	_ "github.com/go-sql-driver/mysql"
+)
 
 type User struct {
 	Id      uint   `json:"id"`

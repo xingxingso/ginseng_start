@@ -1,53 +1,43 @@
-package middlewares
+package middleware
 
 import (
+	"ginseng_start/model"
+	"ginseng_start/service"
 	"log"
 	"time"
+
+	"github.com/sirupsen/logrus"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 )
 
-type login struct {
-	Username string `form:"username" json:"username" binding:"required"`
-	Password string `form:"password" json:"password" binding:"required"`
-}
-
 var identityKey = "id"
 
-// User demo
-type User struct {
-	UserName  string
-	FirstName string
-	LastName  string
-}
-
-var authMiddleware *jwt.GinJWTMiddleware
-
-func NewJwt(r *gin.Engine) {
-	var err error
-	authMiddleware, err = jwt.New(&jwt.GinJWTMiddleware{
+func NewJwt(r *gin.Engine) *jwt.GinJWTMiddleware {
+	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "gin jwt",
 		Key:         []byte("secret key"),
 		Timeout:     time.Hour,
 		MaxRefresh:  time.Hour,
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
-			if v, ok := data.(*User); ok {
+			if v, ok := data.(*model.User); ok {
 				return jwt.MapClaims{
-					identityKey: v.UserName,
+					identityKey: v.Name,
 				}
 			}
 			return jwt.MapClaims{}
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
-			return &User{
-				UserName: claims[identityKey].(string),
+			return &model.User{
+				Name: claims[identityKey].(string),
 			}
 		},
+		// 授权
 		Authenticator: func(c *gin.Context) (interface{}, error) {
-			var loginVals login
+			var loginVals service.Login
 			if err := c.ShouldBind(&loginVals); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
@@ -55,23 +45,23 @@ func NewJwt(r *gin.Engine) {
 			password := loginVals.Password
 
 			if (userID == "admin" && password == "admin") || (userID == "test" && password == "test") {
-				return &User{
-					UserName:  userID,
-					LastName:  "Bo-Yi",
-					FirstName: "Wu",
+				return &model.User{
+					Name: userID,
 				}, nil
 			}
 
 			return nil, jwt.ErrFailedAuthentication
 		},
+		// 鉴权
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-			if v, ok := data.(*User); ok && v.UserName == "admin" {
+			if v, ok := data.(*model.User); ok && v.Name == "admin" {
 				return true
 			}
 
 			return false
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
+			logrus.Error("Unauthorized")
 			c.JSON(code, gin.H{
 				"code":    code,
 				"message": message,
@@ -98,6 +88,7 @@ func NewJwt(r *gin.Engine) {
 
 	if err != nil {
 		log.Fatal("JWT Error:" + err.Error())
+		return nil
 	}
 
 	// When you use jwt.New(), the function is already automatically called for checking,
@@ -106,20 +97,12 @@ func NewJwt(r *gin.Engine) {
 
 	if errInit != nil {
 		log.Fatal("authMiddleware.MiddlewareInit() Error:" + errInit.Error())
+		return nil
 	}
 
-	r.POST("/login", authMiddleware.LoginHandler)
-
-	r.NoRoute(authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
-		claims := jwt.ExtractClaims(c)
-		log.Printf("NoRoute claims: %#v\n", claims)
-		c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
-	})
-
-	// Refresh time can be longer than token timeout
-	r.GET("/refresh_token", authMiddleware.RefreshHandler)
+	return authMiddleware
 }
 
-func Jwt() gin.HandlerFunc {
+func Jwt(authMiddleware *jwt.GinJWTMiddleware) gin.HandlerFunc {
 	return authMiddleware.MiddlewareFunc()
 }
