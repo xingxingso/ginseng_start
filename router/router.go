@@ -3,8 +3,11 @@ package router
 import (
 	"ginseng_start/controller"
 	"ginseng_start/middleware"
+	"ginseng_start/model"
 	"log"
 	"net/http"
+
+	"github.com/sirupsen/logrus"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 
@@ -60,7 +63,14 @@ func SetupRouter(r *gin.Engine) {
 	auth.Use(jwtMid)
 	{
 		auth.GET("/hello", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{"code": "0", "message": "hello"})
+			claims := jwt.ExtractClaims(c)
+			user, _ := c.Get(authMiddleware.IdentityKey)
+			logrus.Infof("%+v", user)
+			c.JSON(http.StatusOK, gin.H{
+				"userID":   claims[authMiddleware.IdentityKey],
+				"userName": user.(*model.User).Name,
+				"text":     "Hello World.",
+			})
 		})
 	}
 }

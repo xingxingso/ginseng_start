@@ -14,6 +14,7 @@ import (
 )
 
 var identityKey = "id"
+var userNameKey = "name"
 
 func NewJwt() *jwt.GinJWTMiddleware {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
@@ -23,17 +24,21 @@ func NewJwt() *jwt.GinJWTMiddleware {
 		MaxRefresh:  time.Hour,
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
+			logrus.Infof("PayloadFunc %T, %+[1]v", data)
 			if v, ok := data.(*model.User); ok {
 				return jwt.MapClaims{
-					identityKey: v.Name,
+					identityKey: v.Id,
+					userNameKey: v.Name,
 				}
 			}
 			return jwt.MapClaims{}
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
+			logrus.Infof("IdentityHandler %T,%+[1]v", claims)
 			return &model.User{
-				Name: claims[identityKey].(string),
+				Id:   uint(claims[identityKey].(float64)),
+				Name: claims[userNameKey].(string),
 			}
 		},
 		// 登录
@@ -68,7 +73,9 @@ func NewJwt() *jwt.GinJWTMiddleware {
 
 		// 鉴权
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-			if v, ok := data.(*model.User); ok && v.Name == "admin" {
+			logrus.Infof("Authorizator %T, %+[1]v", data)
+			// if v, ok := data.(*model.User); ok && v.Name == "admin" {
+			if v, ok := data.(*model.User); ok && v.Id == 1 {
 				return true
 			}
 
@@ -107,12 +114,12 @@ func NewJwt() *jwt.GinJWTMiddleware {
 
 	// When you use jwt.New(), the function is already automatically called for checking,
 	// which means you don't need to call it again.
-	errInit := authMiddleware.MiddlewareInit()
+	// errInit := authMiddleware.MiddlewareInit()
 
-	if errInit != nil {
-		log.Fatal("authMiddleware.MiddlewareInit() Error:" + errInit.Error())
-		return nil
-	}
+	// if errInit != nil {
+	// 	log.Fatal("authMiddleware.MiddlewareInit() Error:" + errInit.Error())
+	// 	return nil
+	// }
 
 	return authMiddleware
 }
