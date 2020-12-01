@@ -9,10 +9,10 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
 
-	"ginseng_start/config"
-	"ginseng_start/middleware"
-	"ginseng_start/model"
-	"ginseng_start/router"
+	"github.com/xingxingso/ginseng_start/config"
+	"github.com/xingxingso/ginseng_start/middleware"
+	"github.com/xingxingso/ginseng_start/model"
+	"github.com/xingxingso/ginseng_start/router"
 )
 
 var err error

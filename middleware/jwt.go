@@ -1,11 +1,12 @@
 package middleware
 
 import (
-	"ginseng_start/model"
-	"ginseng_start/service"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/xingxingso/ginseng_start/model"
+	"github.com/xingxingso/ginseng_start/service"
 
 	"github.com/sirupsen/logrus"
 

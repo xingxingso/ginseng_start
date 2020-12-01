@@ -2,8 +2,9 @@ package service
 
 import (
 	"fmt"
-	"ginseng_start/config"
-	"ginseng_start/model"
+
+	"github.com/xingxingso/ginseng_start/config"
+	"github.com/xingxingso/ginseng_start/model"
 )
 
 //GetAllUsers Fetch all user data

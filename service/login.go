@@ -1,6 +1,6 @@
 package service
 
-import "ginseng_start/model"
+import "github.com/xingxingso/ginseng_start/model"
 
 type Login struct {
 	Username string `form:"username" json:"username" binding:"required"`

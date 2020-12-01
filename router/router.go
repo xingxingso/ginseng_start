@@ -1,11 +1,12 @@
 package router
 
 import (
-	"ginseng_start/controller"
-	"ginseng_start/middleware"
-	"ginseng_start/model"
 	"log"
 	"net/http"
+
+	"github.com/xingxingso/ginseng_start/controller"
+	"github.com/xingxingso/ginseng_start/middleware"
+	"github.com/xingxingso/ginseng_start/model"
 
 	"github.com/sirupsen/logrus"
 

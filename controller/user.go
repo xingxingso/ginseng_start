@@ -1,10 +1,11 @@
 package controller
 
 import (
-	"ginseng_start/model"
-	"ginseng_start/service"
 	"log"
 	"net/http"
+
+	"github.com/xingxingso/ginseng_start/model"
+	"github.com/xingxingso/ginseng_start/service"
 
 	"github.com/gin-gonic/gin"
 )
