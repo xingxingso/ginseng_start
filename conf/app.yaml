@@ -1,0 +1,10 @@
+#mysql相关
+mysql:
+  pt_logistic:  #自定义名字，作为key用于表示某个mysql实例，例如: local, master, slave, feed_master, ...
+    dsn: "root:cFsc34^8pVm@tcp(rm-uf6c65tm4a773n6f935910.mysql.rds.aliyuncs.com:3306)/pt_logistic?charset=utf8mb4&parseTime=True&loc=Local"
+    read_timeout: 3000  # millisecond
+    write_timeout: 5000 # millisecond
+    max_open_conns: 128
+    max_idle_conns: 16
+    max_life_conns: 300 # second
+    debug_sql: true

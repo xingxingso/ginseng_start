@@ -8,7 +8,7 @@ type Login struct {
 }
 
 func (l *Login) Login() *model.User {
-	if l.Username == "admin" && l.Password == "admin" {
+	if l.Username == "admin" && l.Password == "admin1" {
 		return &model.User{
 			Id:   1,
 			Name: l.Username,

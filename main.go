@@ -92,5 +92,5 @@ func main() {
 
 	router.SetupRouter(r)
 	//running
-	r.Run()
+	r.Run(":8090")
 }
