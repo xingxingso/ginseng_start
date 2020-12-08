@@ -26,7 +26,7 @@ func NewJwt() *jwt.GinJWTMiddleware {
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			logrus.Infof("PayloadFunc %T, %+[1]v", data)
-			if v, ok := data.(*model.User); ok {
+			if v, ok := data.(*model.User); v != nil && ok {
 				return jwt.MapClaims{
 					identityKey: v.Id,
 					userNameKey: v.Name,
@@ -44,16 +44,17 @@ func NewJwt() *jwt.GinJWTMiddleware {
 		},
 		// 登录
 		Authenticator: func(c *gin.Context) (interface{}, error) {
-			var login service.Login
+			var login service.Credential
 			if err := c.ShouldBind(&login); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
 
-			if user := login.Login(); user != nil {
-				return user, nil
+			user, err := login.Login()
+			if err != nil {
+				return nil, jwt.ErrFailedAuthentication
 			}
 
-			return nil, jwt.ErrFailedAuthentication
+			return user, nil
 		},
 		// 登录响应格式
 		LoginResponse: func(c *gin.Context, code int, token string, expire time.Time) {

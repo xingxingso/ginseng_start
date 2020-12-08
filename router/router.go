@@ -37,7 +37,10 @@ func SetupRouter(r *gin.Engine) {
 		panic("test")
 	})
 
+	r.POST("/register", controller.Register)
 	r.POST("/login", authMiddleware.LoginHandler)
+	// r.POST("/session", authMiddleware.LoginHandler)
+	r.POST("/logout", authMiddleware.LogoutHandler)
 	// Refresh time can be longer than token timeout
 	r.GET("/refresh_token", authMiddleware.RefreshHandler)
 

@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/xingxingso/ginseng_start/model"
 	"github.com/xingxingso/ginseng_start/service"
-
-	"github.com/gin-gonic/gin"
 )
 
 //GetUsers ... Get all users
@@ -78,4 +78,22 @@ func DeleteUser(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusOK, gin.H{"id" + id: "is deleted"})
 	}
+}
+
+func Register(c *gin.Context)  {
+	cred := &service.Credential{}
+	if err := c.ShouldBind(cred); err != nil {
+		c.JSON(http.StatusOK, gin.H{"msg": "register failed"})
+		return
+	}
+
+	user, err := cred.SignUp()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"msg": "register failed"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"name": user.Name,
+	})
 }
